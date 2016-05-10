@@ -220,13 +220,24 @@ void justine::robocar::Traffic::cmd_session ( boost::asio::ip::tcp::socket clien
                 {
 
                   bool hasGangsters {false};
-                  for ( auto c:m_smart_cars )
-                    {
-                      if ( c->get_type() == CarType::GANGSTER )
+              //    for ( auto c:m_smart_cars )
+
+/*                   {
+                      if ( c->get_type() == CarType::GANGSTER )*/
+{
+                          //length += std::sprintf ( data+length,
+                                                 // "<OK %d %u %u %u>", cl.get_id(), c->from(),
+                                             //      c->to_node(), c->get_step() ); 
+		for ( std::vector<std::shared_ptr<SmartCar>>::iterator it = m_smart_cars.begin(); it != m_smart_cars.end(); it++ )
+
+                   {
+                      if ( (*(*it)).get_type() == CarType::GANGSTER )
+
                         {
                           length += std::sprintf ( data+length,
-                                                   "<OK %d %u %u %u>", cl.get_id(), c->from(),
-                                                   c->to_node(), c->get_step() );
+
+						"<OK %d %u %u %u>", cl.get_id(), (*(*it)).from(),
+						(*(*it)).to_node(), (*(*it)).get_step() );
 
                           if ( length > network_buffer_size - 512 )
                             {
@@ -392,7 +403,7 @@ osmium::unsigned_object_id_type justine::robocar::Traffic::naive_nearest_gangste
   double maxd = std::numeric_limits<double>::max();
   double lon2 {0.0}, lat2 {0.0};
 
-  for ( auto car:m_smart_cars )
+ /* for ( auto car:m_smart_cars )
     {
 
       if ( car->get_type() == CarType::GANGSTER )
@@ -410,7 +421,29 @@ osmium::unsigned_object_id_type justine::robocar::Traffic::naive_nearest_gangste
             }
         }
 
+    }*/
+
+ for ( std::vector<std::shared_ptr<SmartCar>>::iterator it = m_smart_cars.begin(); it != m_smart_cars.end(); it++ )
+    {
+
+      if ( (*(*it)).get_type() == CarType::GANGSTER )
+        {
+
+          toGPS ( (*(*it)).from(), (*(*it)).to() , (*(*it)).get_step(), &lon2, &lat2 );
+
+          double d = dst ( lon1, lat1, lon2, lat2 );
+
+          if ( d < maxd )
+            {
+              maxd = d;
+              ret = (*(*it)).to_node();
+
+            }
+        }
+
     }
+
+
 
   return ret;
 
